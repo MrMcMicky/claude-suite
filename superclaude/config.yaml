@@ -1,0 +1,190 @@
+# SuperClaude Configuration v3.2 - VOLLAUTOMATIK + TESTING
+# Keine manuellen Commands mehr nötig!
+
+# 🤖 AUTOMATIK-MODUS AKTIVIERT
+automatic_mode: full         # Du musst NICHTS mehr manuell aufrufen!
+experience_level: auto       # System passt sich automatisch an
+
+# 🧪 GLOBAL TESTING REQUIREMENTS (MANDATORY)
+testing:
+  enforce_pre_presentation: true    # PFLICHT: Tests vor jeder Präsentation
+  auto_test_triggers:              # Keywords die Tests auslösen
+    - "zeig mir"
+    - "show me"
+    - "präsentiere"
+    - "present"
+    - "fertig"
+    - "ready"
+    - "done"
+    - "complete"
+    - "milestone"
+    - "neue funktion"
+    - "new feature"
+    - "deployment"
+    - "release"
+  
+  mandatory_tests:
+    functional: true      # Alle Features funktionieren
+    ui_testing: true      # Alle Buttons/Links klickbar
+    browser: true         # Chrome, Firefox, Safari
+    api: true            # Alle Endpoints antworten
+    performance: true     # <3s Ladezeit
+    accessibility: true   # Keyboard Navigation
+    error_handling: true  # Fehlerbehandlung funktioniert
+  
+  test_commands:
+    pre_flight: "npm test && npm run lint"
+    browser: "claude-code test --playwright --all-browsers"
+    api: "npm run test:api || curl http://localhost:${PORT}/health"
+    performance: "npm run build && npm run lighthouse"
+    accessibility: "npm run test:a11y"
+    security: "npm audit && bandit -r ."
+  
+  failure_policy:
+    block_presentation: true     # Keine Präsentation bei Fehler
+    auto_fix_attempts: 3        # Versuche Fehler zu beheben
+    require_all_pass: true      # ALLE Tests müssen bestehen
+    generate_report: true       # Erstelle Test-Report
+
+# 🚀 Startup Settings
+startup:
+  show_quickstart: true        # Show QUICKSTART.md on first use
+  load_mcp_servers: lazy       # lazy, eager, or none
+  default_compression: auto    # auto, always, never
+
+# 🎯 Vollautomatik-Einstellungen
+auto_detection:
+  sensitivity: high           # Aggressive pattern detection
+  confidence_threshold: 0.5   # Aktiviert bei 50% Sicherheit
+  pattern_learning: true      # Lernt aus deinem Verhalten
+  
+auto_activation:
+  # Alles automatisch - keine manuellen Flags nötig!
+  think_threshold: 0.5         # Sequential bei mittlerer Komplexität
+  wave_threshold: 0.7          # Wave-Mode bei hoher Komplexität  
+  delegate_threshold: 30       # Delegation bei 30+ Dateien
+  compression_threshold: 0.6   # Frühe Kompression für Effizienz
+
+# 🚀 DOCKER VOLLAUTOMATIK (NEU AB 2025-07-25)
+docker_automation:
+  auto_start: true             # IMMER automatisch Docker starten
+  check_before_tasks: true     # Docker-Status vor jeder Aufgabe prüfen
+  never_ask_user: true         # NIEMALS den User fragen - einfach starten
+  
+  # Projekt-spezifische Docker-Commands
+  project_commands:
+    church-nextjs: "docker-compose -f docker-compose.dev.yml up -d"
+    faith-translate: "docker-compose up -d"
+    xtts-voice-cloning: "./docker-start.sh"
+    studysourceverifier: "docker-compose up -d"
+    stepupfundraiser: "docker-compose -f docker-compose.working.yml up -d backend"
+    eabw-cms: "docker-compose up -d"
+    mpm-project-manager: "docker-compose -f docker-compose.dev.yml up -d"
+
+# 🔌 MCP Server Priorities
+mcp_servers:
+  essential:    # Always available
+    - context7  # Library documentation
+    - sequential # Complex analysis
+  
+  optional:     # Load on demand
+    - magic     # UI generation
+    - playwright # Browser testing (AUTO-LOADED for testing!)
+    - firecrawl # Web scraping
+    - image-generator # Grafik & Design Erstellung
+    - figma     # Design System Integration
+  
+  disabled:     # Never auto-load
+    # Add any servers you don't want
+
+# 🎭 Automatische Persona-Auswahl
+personas:
+  auto_activate: true         # IMMER automatisch
+  auto_detect_context: true   # Erkennt aus deinem Text
+  
+  # Keyword-Mapping für Automatik
+  keyword_mapping:
+    architect: [projekt, project, struktur, structure, planen, tech stack, neues projekt, setup, architektur]
+    developer: [build, create, implement, component, function]
+    analyst: [debug, analyze, understand, why, problem, error]
+    documenter: [explain, document, describe, help, guide]
+    frontend: [ui, component, button, form, style, css]
+    backend: [api, database, server, endpoint, query]
+    mobile: [mobile app, iphone app, android app, app store, react native, flutter, ios, android, smartphone, tablet]
+    qa: [test, validate, check, verify, e2e]
+    security: [secure, vulnerability, audit, hack, threat]
+    performance: [slow, fast, optimize, performance, speed]
+
+# ⚡ Performance Settings
+performance:
+  cache_ttl: 3600           # Cache MCP responses for 1 hour
+  max_parallel_tools: 3     # Limit parallel operations
+  token_warning: 0.8        # Warn at 80% token usage
+  auto_compress: true       # Auto --uc when needed
+
+# 📊 Workflow Simplification
+workflows:
+  # Aliases for common operations
+  shortcuts:
+    comp: "/build $@ --magic --uc"
+    debug: "/analyze $@ --think"
+    perf: "/improve $@ --focus performance"
+    quickfix: "/fix $@ --fast"
+    test: "test-before-present"  # NEW: Auto-test shortcut
+  
+  # Reduced auto-activations based on level
+  auto_features:
+    beginner:
+      - basic_personas
+      - context7_docs
+      - auto_compression
+    
+    intermediate:
+      - sequential_analysis
+      - playwright_testing
+      - think_flags
+    
+    advanced:
+      - all_mcp_servers
+      - wave_orchestration
+      - delegation
+    
+    expert:
+      - full_control
+      - custom_orchestration
+      - meta_commands
+
+# 🔔 User Preferences für Vollautomatik
+preferences:
+  verbose_errors: false          # Klare, einfache Fehlermeldungen
+  show_auto_activations: true    # Zeigt was automatisch aktiviert wurde
+  confirm_expensive_ops: false   # Keine Unterbrechungen - vertrau der Automatik
+  emoji_mode: true              # 🤖 Macht mehr Spaß!
+  
+  # Transparenz-Einstellungen
+  activation_notification: minimal  # minimal, detailed, or none
+  show_confidence_scores: false     # Zeigt wie sicher das System ist
+  explain_decisions: on_request     # always, on_request, never
+
+# 📝 Logging & Monitoring
+logging:
+  level: info               # debug, info, warning, error
+  track_token_usage: true   # Monitor token consumption
+  track_mcp_calls: false    # Only for debugging
+  track_test_results: true  # NEW: Log all test results
+
+# 🎯 Project Overrides
+# These are loaded from project-specific CLAUDE.md
+project_overrides:
+  respect_local_config: true
+  merge_strategy: local_first  # local_first or global_first
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+# 🧪 TESTING IS MANDATORY
+ALWAYS run comprehensive tests before presenting ANY new feature, project, or milestone to the user.
+NO EXCEPTIONS - Quality is not negotiable!

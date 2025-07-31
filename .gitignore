@@ -1,0 +1,31 @@
+# Environment
+.env
+*.key
+*.pem
+
+# Logs
+*.log
+logs/
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Backups
+*.backup
+*.bak
+*-backup-*
+
+# Personal configs
+personal-config.yaml
+PERSONAL_NOTES.md
