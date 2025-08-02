@@ -31,23 +31,54 @@ cd claude-suite
 ./dev-setup/install.sh
 ```
 
-### Claude-Flow starten:
+### Claude-Flow Manager starten (EMPFOHLEN):
 ```bash
 cd ~/claude-development/local-development-hub
-./start-claude-flow-tmux.sh
-tmux attach -t claude-flow
+./claude-suite-manager.sh
 ```
 
-### Erster Spawn:
+### Quick Spawn:
 ```bash
-npx claude-flow@alpha hive-mind spawn "Hello World test" --claude
+# Adaptive (flexibel, lernfähig)
+./claude-suite-manager.sh --quick
+
+# Tactical (schnell, effizient)
+./claude-suite-manager.sh --tactical
 ```
+
+### Zu laufendem Swarm reconnecten:
+```bash
+./claude-suite-manager.sh
+# Wähle: 10) Attach to Running Swarm
+```
+
+## 🆕 Neue Features (2025-08-02)
+
+### Claude-Suite Manager
+Das neue Hauptscript vereint alle Features:
+- **Quick Spawn**: Schneller Start mit Adaptive/Tactical Mode
+- **Custom Configuration**: Volle Kontrolle über Queen Types, Workers, Memory
+- **Project Templates**: 13 vorkonfigurierte Projekt-Spawns
+- **Multi-Project Operations**: Security Audits, Performance Campaigns
+- **Attach/Reconnect**: Zu laufenden Swarms wieder verbinden
+- **System Management**: Health Check, Cleanup, Process Control
+
+### Reconnect zu laufenden Swarms
+Nach dem Schließen der Konsole könnt ihr euch wieder mit laufenden Swarms verbinden:
+- **Interactive Attach**: Direkt mit dem Swarm interagieren
+- **tmux Reconnect**: Über tmux Sessions wieder einsteigen
+- **Session Management**: Resume, Stop, Consensus anzeigen
 
 ## 📁 Repository Struktur
 
 ```
 claude-suite/
 ├── claude-flow/          # Hive Mind Scripts & Configs
+├── scripts/              # Alle Management-Scripts
+│   ├── claude-suite-manager.sh    # 🆕 Hauptscript mit allen Features
+│   ├── claude-flow-fixed.sh      # Robustes Process Management
+│   ├── claude-flow-simple.sh     # Einfache Commands
+│   └── README.md                 # Script-Dokumentation
 ├── superclaude/         # SuperClaude Vollautomatik
 │   └── agents/          # 16 Spezialisierte Agents
 ├── dev-setup/           # Automatisierte Installation
