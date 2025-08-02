@@ -500,80 +500,136 @@ function manage_swarm_session() {
 }
 
 function attach_to_swarm() {
-    echo -e "${GREEN}🔗 Attach to Running Swarm (Interactive Mode)${NC}"
-    echo ""
-    
-    # Get active sessions
-    echo -e "${YELLOW}Fetching active sessions...${NC}"
-    local sessions_output=$(timeout 10s npx claude-flow@alpha hive-mind sessions 2>&1)
-    
-    if [ $? -ne 0 ] || [ -z "$sessions_output" ]; then
-        echo -e "${RED}Could not fetch sessions${NC}"
-        return 1
-    fi
-    
-    # Extract session IDs and objectives
-    local session_info=$(echo "$sessions_output" | grep -E "(Session ID:|Objective:|Status:)" | paste -d' ' - - - 2>/dev/null)
-    
-    if [ -z "$session_info" ]; then
-        echo -e "${RED}No active sessions found${NC}"
-        return 1
-    fi
-    
-    # Display sessions with numbers
-    echo -e "${CYAN}Active Sessions:${NC}"
-    echo ""
-    
-    local i=1
-    local session_ids=()
-    
-    echo "$sessions_output" | while IFS= read -r line; do
-        if [[ $line =~ "Session ID: "(.+) ]]; then
-            session_id="${BASH_REMATCH[1]}"
-            session_ids+=("$session_id")
-            echo -e "${YELLOW}$i)${NC} Session: ${BLUE}$session_id${NC}"
-            ((i++))
-        elif [[ $line =~ "Objective:" ]] || [[ $line =~ "Status:" ]]; then
-            echo "   $line"
-        elif [[ $line == "────"* ]]; then
-            echo ""
-        fi
-    done
-    
-    echo ""
-    read -p "Enter Session ID or number to attach (or 'cancel'): " selection
-    
-    if [ "$selection" == "cancel" ] || [ -z "$selection" ]; then
-        echo -e "${BLUE}Cancelled${NC}"
-        return 1
-    fi
-    
-    # Determine session ID
-    local target_session="$selection"
-    
-    echo ""
-    echo -e "${GREEN}🔗 Attaching to session: $target_session${NC}"
-    echo ""
-    echo -e "${YELLOW}Note: This will connect you to the running swarm in interactive mode.${NC}"
-    echo -e "${YELLOW}Press Ctrl+C to detach when done.${NC}"
-    echo ""
-    
-    # Try different attach methods
-    echo "Attempting to attach..."
-    
-    # Method 1: Direct attach command
-    if command -v claude-flow &> /dev/null; then
-        claude-flow hive-mind attach "$target_session" --interactive
+    # Use the standalone swarm-attach.sh script
+    if [ -x "$SCRIPT_DIR/swarm-attach.sh" ]; then
+        "$SCRIPT_DIR/swarm-attach.sh"
     else
-        # Method 2: Using npx
-        npx claude-flow@alpha hive-mind attach "$target_session" --interactive
+        echo -e "${RED}❌ swarm-attach.sh not found or not executable!${NC}"
+        echo ""
+        echo "Please ensure swarm-attach.sh exists in: $SCRIPT_DIR"
+        echo "Run: chmod +x $SCRIPT_DIR/swarm-attach.sh"
+    fi
+    local latest_session=$(ls -t .hive-mind/sessions/session-*.json 2>/dev/null | head -1)
+    if [ -n "$latest_session" ]; then
+        local session_id=$(basename "$latest_session" | sed 's/session-\(.*\)-auto-.*/\1/')
+        echo -e "${YELLOW}1) Connect via Session ID:${NC}"
+        echo "   Session: $session_id"
+        echo "   Command: npx claude-flow@alpha hive-mind connect $session_id"
+        echo ""
     fi
     
-    # If that fails, try resume with interactive flag
-    if [ $? -ne 0 ]; then
+    # Method 2: Via WebSocket/UI
+    if nc -z localhost 9000 2>/dev/null; then
+        echo -e "${YELLOW}2) Connect via WebSocket (Port 9000 active):${NC}"
+        echo "   Run: npx claude-flow@alpha hive-mind ui"
+        echo "   Open: http://localhost:3008/console"
         echo ""
-        echo -e "${YELLOW}Direct attach failed, trying resume in interactive mode...${NC}"
-        npx claude-flow@alpha hive-mind resume "$target_session" --interactive --verbose
+    fi
+    
+    # Method 3: Via reptyr (if available)
+    if command -v reptyr &> /dev/null && [ -n "$main_pid" ]; then
+        echo -e "${YELLOW}3) Attach to process terminal (requires sudo):${NC}"
+        echo "   Command: sudo reptyr $main_pid"
+        echo ""
+    fi
+    
+    # Method 4: Create new tmux session
+    echo -e "${YELLOW}4) Create monitoring session in tmux:${NC}"
+    echo "   This will create a new tmux session to monitor the swarm"
+    echo ""
+    
+    read -p "Select method (1-4) or 'cancel': " choice
+    
+    case "$choice" in
+        1)
+            if [ -n "$session_id" ]; then
+                echo ""
+                echo -e "${GREEN}Connecting to session $session_id...${NC}"
+                echo "Note: This may take a moment to establish connection"
+                echo ""
+                # Try different connection commands
+                npx claude-flow@alpha hive-mind connect "$session_id" || \
+                npx claude-flow@alpha hive-mind attach "$session_id" || \
+                npx claude-flow@alpha hive-mind resume "$session_id" --interactive --verbose
+            else
+                echo -e "${RED}No session ID found${NC}"
+            fi
+            ;;
+        2)
+            echo ""
+            echo -e "${GREEN}Starting UI server...${NC}"
+            echo "Opening browser at http://localhost:3008/console"
+            npx claude-flow@alpha hive-mind ui
+            ;;
+        3)
+            if [ -n "$main_pid" ]; then
+                echo ""
+                echo -e "${GREEN}Attaching to process $main_pid...${NC}"
+                echo "This requires sudo permissions"
+                sudo reptyr $main_pid
+            else
+                echo -e "${RED}No main PID found${NC}"
+            fi
+            ;;
+        4)
+            if [ -n "$main_pid" ]; then
+                reconnect_to_swarm_monitor "$main_pid"
+            else
+                echo -e "${RED}No swarm process found to monitor${NC}"
+            fi
+            ;;
+        *)
+            echo -e "${BLUE}Cancelled${NC}"
+            ;;
+    esac
+}
+
+function reconnect_to_swarm_monitor() {
+    local pid="$1"
+    local session_name="swarm-monitor-$pid"
+    
+    echo ""
+    echo -e "${GREEN}Creating tmux monitoring session...${NC}"
+    
+    # Kill old session if exists
+    tmux kill-session -t "$session_name" 2>/dev/null
+    
+    # Create new tmux session
+    tmux new-session -d -s "$session_name" -n "Monitor"
+    
+    # Window 1: Process monitoring
+    tmux send-keys -t "$session_name:0" "echo 'Monitoring Swarm Process PID: $pid'" C-m
+    tmux send-keys -t "$session_name:0" "echo ''" C-m
+    tmux send-keys -t "$session_name:0" "# Tail any logs if available" C-m
+    tmux send-keys -t "$session_name:0" "tail -f ~/.claude-flow/logs/*.log 2>/dev/null || echo 'No logs available'" C-m
+    
+    # Window 2: Try to connect
+    tmux new-window -t "$session_name:1" -n "Connect"
+    tmux send-keys -t "$session_name:1" "cd $SCRIPT_DIR" C-m
+    
+    # Try to find and connect to session
+    local latest_session=$(ls -t .hive-mind/sessions/session-*.json 2>/dev/null | head -1)
+    if [ -n "$latest_session" ]; then
+        local session_id=$(basename "$latest_session" | sed 's/session-\(.*\)-auto-.*/\1/')
+        tmux send-keys -t "$session_name:1" "echo 'Attempting to connect to session: $session_id'" C-m
+        tmux send-keys -t "$session_name:1" "npx claude-flow@alpha hive-mind connect $session_id" C-m
+    else
+        tmux send-keys -t "$session_name:1" "echo 'Monitoring swarm activity...'" C-m
+        tmux send-keys -t "$session_name:1" "watch -n 5 'ps aux | grep $pid | grep -v grep'" C-m
+    fi
+    
+    echo ""
+    echo -e "${GREEN}✅ tmux session created: $session_name${NC}"
+    echo ""
+    echo "Commands:"
+    echo "  Attach:  tmux attach -t $session_name"
+    echo "  Detach:  Ctrl+B, then D"
+    echo "  Switch:  Ctrl+B, then 0-1"
+    echo ""
+    
+    read -p "Attach now? (y/n): " attach_now
+    if [ "$attach_now" = "y" ]; then
+        tmux attach -t "$session_name"
     fi
 }
 
@@ -932,4 +988,5 @@ if [ $# -gt 0 ]; then
 fi
 
 # Start interactive menu
+main_menu
 main_menu

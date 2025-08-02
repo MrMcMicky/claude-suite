@@ -48,8 +48,13 @@ cd ~/claude-development/local-development-hub
 
 ### Zu laufendem Swarm reconnecten:
 ```bash
+# Option 1: Über das Hauptmenü
 ./claude-suite-manager.sh
 # Wähle: 10) Attach to Running Swarm
+
+# Option 2: Direktes Attach-Tool (NEU!)
+./swarm-attach.sh
+# Bietet 4 verschiedene Methoden zum Reconnect
 ```
 
 ## 🆕 Neue Features (2025-08-02)
@@ -76,6 +81,7 @@ claude-suite/
 ├── claude-flow/          # Hive Mind Scripts & Configs
 ├── scripts/              # Alle Management-Scripts
 │   ├── claude-suite-manager.sh    # 🆕 Hauptscript mit allen Features
+│   ├── swarm-attach.sh           # 🆕 Standalone Tool für Swarm Reconnect
 │   ├── claude-flow-fixed.sh      # Robustes Process Management
 │   ├── claude-flow-simple.sh     # Einfache Commands
 │   └── README.md                 # Script-Dokumentation

@@ -35,10 +35,28 @@ cd ~/claude-development/local-development-hub/
 
 After closing your console, you can reconnect to running swarms:
 
+### **swarm-attach.sh** (NEW! Standalone Tool)
+The most reliable way to reconnect to running swarms:
+
+```bash
+./swarm-attach.sh
+```
+
+**Features:**
+- 🔍 Automatically finds all running swarms
+- 📊 Shows process info (PID, TTY, Objective)
+- 🔧 4 different connection methods:
+  1. **tmux monitoring** - Most reliable for alpha version
+  2. **WebSocket UI** - Browser-based interface
+  3. **Direct connection** - Using session ID
+  4. **Manual guide** - Shows all possible commands
+
+### **Other Methods:**
+
 **Method 1: Via Manager Script**
 ```bash
 ./claude-suite-manager.sh
-# Choose: 10) Attach to Running Swarm (Interactive)
+# Choose: 10) Attach to Running Swarm (uses swarm-attach.sh)
 # or:     11) Reconnect via tmux
 ```
 
