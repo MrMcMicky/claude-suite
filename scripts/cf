@@ -1,0 +1,10 @@
+#!/bin/bash
+# Claude-Flow Quick Launcher
+# Simple wrapper for common operations
+
+# Get the directory of this script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+# Execute the main script with all arguments
+./claude-flow-vps.sh "$@"
